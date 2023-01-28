@@ -10,6 +10,9 @@ let player = {
   facing: "right"
 };
 
+let lastRender = 0;
+let start, previousTimeStamp;
+
 resize();
 setControlListeners();
 
@@ -91,6 +94,7 @@ gameLoop();
 
 function gameLoop () {
   clearCanvas();
+  movePlayer();
   drawPlayer();
   requestAnimationFrame(gameLoop);
 }
@@ -98,6 +102,10 @@ function gameLoop () {
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // sets transparent black
 }
+
+function movePlayer() {
+
+};
 
 function drawPlayer () {
 
@@ -143,7 +151,7 @@ function drawPlayer () {
     ctx.fillStyle = '#78f0f0';
   ctx.beginPath();
   if (player.facing == "left") {
-    ctx.roundRect(player.x - 21, player.y - 10, 15, 10, 5); // no support in firefox !!
+    ctx.roundRect(player.x - 16, player.y - 10, 15, 10, 5); // no support in firefox !!
   } else {
     ctx.roundRect(player.x - 1, player.y - 10, 15, 10, 5); // no support in firefox !!
   }
@@ -154,7 +162,7 @@ function drawPlayer () {
     ctx.fillStyle = 'white';
   ctx.beginPath();
   if (player.facing == "left") {
-    ctx.roundRect(player.x -20, player.y - 8, 8, 3, 1); // no support in firefox !!
+    ctx.roundRect(player.x -15, player.y - 8, 8, 3, 1); // no support in firefox !!
   } else {
     ctx.roundRect(player.x + 5, player.y - 8, 8, 3, 1); // no support in firefox !!
   }
