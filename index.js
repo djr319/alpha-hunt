@@ -2,11 +2,20 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 window.addEventListener("resize", resize);
 
+
+
+function speak(message) {
+  let msg = new SpeechSynthesisUtterance();
+  msg.text = message;
+  window.speechSynthesis.speak(msg);
+};
+
+speak('Welcome crewmate');
+
 let player = {
   x: Math.floor(window.innerWidth / 2),
   y: Math.floor(window.innerHeight / 2),
   direction: { dX: 0, dY: 0 },
-  speed: 0,
   facing: "right"
 };
 
@@ -104,7 +113,8 @@ function clearCanvas() {
 }
 
 function movePlayer() {
-
+  player.x = player.x + player.direction.dX;
+  player.y = player.y + player.direction.dY;
 };
 
 function drawPlayer () {
