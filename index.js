@@ -17,7 +17,7 @@ function speak(message) {
   window.speechSynthesis.speak(msg);
 };
 
-speak('Hello crewmate... How are you Kieran?');
+// speak('Hello crewmate... How are you Kieran?');
 
 let player = {
   x: Math.floor(window.innerWidth / 2),
@@ -40,8 +40,6 @@ function resize () {
   player.y = Math.floor(window.innerHeight / 2);
 }
 
-
-// a comment
 function controls (e) {
   switch (e.key) {
 
@@ -124,6 +122,7 @@ gameLoop();
 
 function gameLoop () {
   clearCanvas();
+  drawRooms();
   movePlayer();
   drawPlayer();
 
@@ -132,6 +131,91 @@ function gameLoop () {
 
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // sets transparent black
+}
+
+function drawRooms () {
+  const outerBuffer = 30;
+  const houseWidth = canvas.width - ( 2 * outerBuffer );
+  const houseHeight = canvas.height - ( 2 * outerBuffer );
+
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'white';
+  ctx.fillStyle = 'white';
+
+  // house top
+  ctx.beginPath();
+  ctx.moveTo(outerBuffer,outerBuffer);
+  ctx.lineTo(outerBuffer+houseWidth, outerBuffer);
+
+  // house left
+  ctx.lineTo(outerBuffer+houseWidth,outerBuffer+houseHeight);
+  
+  // house right
+  ctx.lineTo(outerBuffer,outerBuffer+houseHeight);
+  
+  // house bottom
+  ctx.closePath();
+  ctx.stroke();
+
+  // hall
+  ctx.beginPath();
+  // hall left    
+  const doorWidth = 100;
+  const doorHeight =100;
+  const xUnit = houseWidth / 8;
+  const yUnit = houseHeight / 6;
+
+
+  // room nw
+  ctx.moveTo(outerBuffer + 3 * xUnit,outerBuffer);
+  ctx.lineTo(outerBuffer+ 3 * xUnit, outerBuffer + 2 * yUnit);
+
+  // room ne
+  ctx.moveTo(outerBuffer + 5 * xUnit,outerBuffer);
+  ctx.lineTo(outerBuffer+ 5 * xUnit, outerBuffer + 2 * yUnit);
+
+  // room e
+  ctx.moveTo(outerBuffer + 5.5 * xUnit,outerBuffer + 2 * yUnit);
+  ctx.lineTo(outerBuffer + 5.5 * xUnit, outerBuffer + 4 * yUnit);
+
+  // room se
+  ctx.moveTo(outerBuffer + 5 * xUnit,outerBuffer + 4 * yUnit);
+  ctx.lineTo(outerBuffer + 5 * xUnit, outerBuffer + 6 * yUnit);
+
+  // room sw
+  ctx.moveTo(outerBuffer + 3 * xUnit,outerBuffer + 4 * yUnit);
+  ctx.lineTo(outerBuffer + 3 * xUnit, outerBuffer + 6 * yUnit);
+
+  // room w
+  ctx.moveTo(outerBuffer, outerBuffer + 3 * yUnit);
+  ctx.lineTo(outerBuffer + 2.5 * xUnit, outerBuffer + 3 * yUnit);
+
+
+  // hall top left
+  ctx.moveTo(outerBuffer + 2.5 * xUnit, outerBuffer + 2 * yUnit);
+  ctx.lineTo(outerBuffer + 4 * xUnit - 1/2 * doorWidth, outerBuffer + 2 * yUnit);
+
+  // hall top right
+  ctx.moveTo(outerBuffer + 4 * xUnit + 1/2 * doorWidth, outerBuffer + 2 * yUnit);
+  ctx.lineTo(outerBuffer + 5 * xUnit, outerBuffer + 2 * yUnit);    
+    
+  // hall right
+  ctx.moveTo(outerBuffer + 5.5 * xUnit, outerBuffer + 2 * yUnit);
+  ctx.lineTo(outerBuffer + 5.5 * xUnit, outerBuffer + 4 * yUnit);
+  
+  // hall bottom right
+  ctx.moveTo(outerBuffer + 4 * xUnit + 1/2 * doorWidth, outerBuffer + 4 * yUnit);
+  ctx.lineTo(outerBuffer + 5 * xUnit, outerBuffer + 4 * yUnit);
+
+  // hall bottom left
+  ctx.moveTo(outerBuffer + 2.5 * xUnit, outerBuffer + 4 * yUnit);
+  ctx.lineTo(outerBuffer + 4 * xUnit - 1/2 * doorWidth, outerBuffer + 4 * yUnit);
+  
+  // hall left
+  ctx.moveTo(outerBuffer + 2.5 * xUnit, outerBuffer + 2 * yUnit + doorHeight);
+  ctx.lineTo(outerBuffer + 2.5 * xUnit, outerBuffer + 4 * yUnit - doorHeight);
+  
+  ctx.stroke();
 }
 
 function movePlayer() {
