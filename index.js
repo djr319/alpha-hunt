@@ -1,6 +1,20 @@
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d', { alpha: false });
-window.addEventListener("resize", resize);
+window.addEventListener('resize', resize);
+
+const outerBuffer = 30;
+const innerBuffer = 30;
+const houseWidth = canvas.width - ( 2 * outerBuffer );
+const houseHeight = canvas.height - ( 2 * outerBuffer );
+
+const gameOn = 1;
+const alphabet = ['a','ä','b','c','d','e','f','g','h','i','j','k','l','m','n','o','ö','p','q','r','s','t','u','ü','v','w','x','y','z'];
+let currentLetter = {
+  letter: 0,
+  x:0,
+  y:0
+};
+placeLetter();
 
 const colors = [
   'yellow',
@@ -123,6 +137,7 @@ gameLoop();
 function gameLoop () {
   clearCanvas();
   drawRooms();
+  drawLetter();
   movePlayer();
   drawPlayer();
 
@@ -134,9 +149,6 @@ function clearCanvas() {
 }
 
 function drawRooms () {
-  const outerBuffer = 30;
-  const houseWidth = canvas.width - ( 2 * outerBuffer );
-  const houseHeight = canvas.height - ( 2 * outerBuffer );
 
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'white';
@@ -218,10 +230,34 @@ function drawRooms () {
   ctx.stroke();
 }
 
+function catchLetter () {
+  // todo: add to score
+  currentLetter.letter ++;
+  if (currentLetter > alphabet.length) endGame();
+  if (gameOn === 1) placeLetter();
+}
+
+function placeLetter () {
+  const newPosition = randomPosition();
+  currentLetter.x = newPosition.x;
+  currentLetter.y = newPosition.y;
+}
+
+function randomPosition () {
+  let x = outerBuffer + innerBuffer + Math.random() * (houseWidth - 2 * innerBuffer); 
+  let y = outerBuffer + innerBuffer + Math.random() * (houseHeight - 2 * innerBuffer); 
+  // check for wall 
+  return {x,y};
+}
+
+function drawLetter () {
+  ctx.fillText( alphabet[currentLetter.letter].toUpperCase() + alphabet[currentLetter.letter], currentLetter.x, currentLetter.y);
+}
+
 function movePlayer() {
   player.x = player.x + player.direction.dX;
   player.y = player.y + player.direction.dY;
-};
+}
 
 function drawPlayer () {
   let crewColor = colors[player.color];
@@ -288,4 +324,9 @@ function drawPlayer () {
     ctx.stroke();
     ctx.fill();
 
+}
+
+function endGame () {
+  gameOn = 0;
+  alert("Congratulations!")
 }
