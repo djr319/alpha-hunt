@@ -9,7 +9,6 @@ let currentLetter = {
   x:0,
   y:0
 };
-placeLetter();
 
 const colors = [
   'yellow',
@@ -21,6 +20,7 @@ const colors = [
 ];
 
 const outerBuffer = 30;
+const innerBuffer = 30;
 let houseWidth;
 let houseHeight;
 const doorWidth = 100;
@@ -66,73 +66,73 @@ function controls(e) {
   switch (e.key) {
 
     case 'W':
-    case 'ArrowUp':
-    case 'w':
-      player.direction.dY = -1;
-      break;
+      case 'ArrowUp':
+        case 'w':
+          player.direction.dY = -1;
+          break;
 
-    case 'A':
-    case 'ArrowLeft':
-    case 'a':
-      player.direction.dX = -1;
-      player.facing = "left";
-      break;
+          case 'A':
+            case 'ArrowLeft':
+              case 'a':
+                player.direction.dX = -1;
+                player.facing = "left";
+                break;
 
-    case 'S':
-    case 'ArrowDown':
-    case 's':
-      player.direction.dY = 1;
-      break;
+                case 'S':
+                  case 'ArrowDown':
+                    case 's':
+                      player.direction.dY = 1;
+                      break;
 
-    case 'D':
-    case 'ArrowRight':
-    case 'd':
-      player.direction.dX = 1;
-      player.facing = "right";
-      break;
+                      case 'D':
+                        case 'ArrowRight':
+                          case 'd':
+                            player.direction.dX = 1;
+                            player.facing = "right";
+                            break;
 
-    case 'Escape':
-      if (!e.repeat) exitGame();
-      break;
+                            case 'Escape':
+                              if (!e.repeat) exitGame();
+                              break;
 
-    case 'c':
-    case 'C':
-      changeColor();
-      break;
+                              case 'c':
+                                case 'C':
+                                  changeColor();
+                                  break;
 
-    default: break;
-  }
-}
+                                  default: break;
+                                }
+                              }
 
-function keyupControls(e) {
+                              function keyupControls(e) {
 
-  switch (e.key) {
-    case 'W':
-    case 'ArrowUp':
-    case 'w':
-    case 'S':
-    case 'ArrowDown':
-    case 's': player.direction.dY = 0;
-      break;
+                                switch (e.key) {
+                                  case 'W':
+                                    case 'ArrowUp':
+                                      case 'w':
+                                        case 'S':
+                                          case 'ArrowDown':
+                                            case 's': player.direction.dY = 0;
+                                            break;
 
-    case 'A':
-    case 'ArrowLeft':
-    case 'D':
-    case 'ArrowRight':
-    case 'd': player.direction.dX = 0;
-      break;
+                                            case 'A':
+                                              case 'ArrowLeft':
+                                                case 'D':
+                                                  case 'ArrowRight':
+                                                    case 'd': player.direction.dX = 0;
+                                                    break;
 
-    default:
-      break;
-  }
-}
+                                                    default:
+                                                      break;
+                                                    }
+                                                  }
 
-function setControlListeners() {
-  document.addEventListener('keydown', controls);
-  document.addEventListener('keyup', keyupControls);
-}
+                                                  function setControlListeners() {
+                                                    document.addEventListener('keydown', controls);
+                                                    document.addEventListener('keyup', keyupControls);
+                                                  }
 
-function changeColor() {
+                                                  function changeColor() {
   console.log('color change: ', player.color);
 
   player.color = player.color + 1
@@ -140,6 +140,7 @@ function changeColor() {
 
 }
 defineWalls();
+placeLetter();
 gameLoop();
 
 function gameLoop() {
