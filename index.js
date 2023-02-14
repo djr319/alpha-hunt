@@ -2,11 +2,6 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 window.addEventListener('resize', resize);
 
-const outerBuffer = 30;
-const innerBuffer = 30;
-const houseWidth = canvas.width - ( 2 * outerBuffer );
-const houseHeight = canvas.height - ( 2 * outerBuffer );
-
 const gameOn = 1;
 const alphabet = ['a','ä','b','c','d','e','f','g','h','i','j','k','l','m','n','o','ö','p','q','r','s','t','u','ü','v','w','x','y','z'];
 let currentLetter = {
@@ -24,6 +19,15 @@ const colors = [
   'green',
   'red',
 ];
+
+const outerBuffer = 30;
+let houseWidth;
+let houseHeight;
+const doorWidth = 100;
+const doorHeight = 100;
+let xUnit;
+let yUnit;
+const walls = [];
 
 function speak(message) {
   let msg = new SpeechSynthesisUtterance();
@@ -47,14 +51,18 @@ let start, previousTimeStamp;
 resize();
 setControlListeners();
 
-function resize () {
+function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+  houseWidth = canvas.width - (2 * outerBuffer);
+  houseHeight = canvas.height - (2 * outerBuffer);
+  xUnit = houseWidth / 8;
+  yUnit = houseHeight / 6;
   player.x = Math.floor(window.innerWidth / 2);
   player.y = Math.floor(window.innerHeight / 2);
 }
 
-function controls (e) {
+function controls(e) {
   switch (e.key) {
 
     case 'W':
@@ -90,13 +98,13 @@ function controls (e) {
     case 'c':
     case 'C':
       changeColor();
-    break;
+      break;
 
     default: break;
   }
 }
 
-function keyupControls (e) {
+function keyupControls(e) {
 
   switch (e.key) {
     case 'W':
@@ -119,7 +127,7 @@ function keyupControls (e) {
   }
 }
 
-function setControlListeners () {
+function setControlListeners() {
   document.addEventListener('keydown', controls);
   document.addEventListener('keyup', keyupControls);
 }
@@ -131,12 +139,12 @@ function changeColor() {
   if (player.color > colors.length) player.color = 0;
 
 }
-
+defineWalls();
 gameLoop();
 
-function gameLoop () {
+function gameLoop() {
   clearCanvas();
-  drawRooms();
+  drawWalls();
   drawLetter();
   movePlayer();
   drawPlayer();
@@ -148,86 +156,113 @@ function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // sets transparent black
 }
 
-function drawRooms () {
+function drawWalls() {
 
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'white';
   ctx.fillStyle = 'white';
 
-  // house top
-  ctx.beginPath();
-  ctx.moveTo(outerBuffer,outerBuffer);
-  ctx.lineTo(outerBuffer+houseWidth, outerBuffer);
+  walls.forEach(wall => {
+    ctx.moveTo(wall.start.x, wall.start.y);
+    ctx.lineTo(wall.end.x, wall.end.y);
+    ctx.stroke();
+  });
 
-  // house left
-  ctx.lineTo(outerBuffer+houseWidth,outerBuffer+houseHeight);
-  
-  // house right
-  ctx.lineTo(outerBuffer,outerBuffer+houseHeight);
-  
-  // house bottom
-  ctx.closePath();
-  ctx.stroke();
+}
 
-  // hall
-  ctx.beginPath();
-  // hall left    
-  const doorWidth = 100;
-  const doorHeight =100;
-  const xUnit = houseWidth / 8;
-  const yUnit = houseHeight / 6;
+function defineWalls() {
 
+  walls.push(
+    {
+      name: 'house_top',
+      start: { x: outerBuffer, y: outerBuffer },
+      end: { x: outerBuffer + houseWidth, y: outerBuffer }
+    },
+    {
+      name: 'house_left',
+      start: { x: outerBuffer, y: outerBuffer },
+      end: { x: outerBuffer, y: outerBuffer + houseHeight }
+    },
+    {
+      name: 'house_right',
+      start: { x: outerBuffer + houseWidth, y: outerBuffer },
+      end: { x: outerBuffer + houseWidth, y: outerBuffer + houseHeight }
+    },
+    {
+      name: 'house_bottom',
+      start: { x: outerBuffer, y: outerBuffer + houseHeight },
+      end: { x: outerBuffer + houseWidth, y: outerBuffer + houseHeight }
+    },
+    {
+      name: 'room_nw',
+      start: { x: outerBuffer + 3 * xUnit, y: outerBuffer },
+      end: { x: outerBuffer + 3 * xUnit, y: outerBuffer + 2 * yUnit }
+    },
+    {
+      name: 'room ne',
+      start: { x: outerBuffer + 5 * xUnit, y: outerBuffer },
+      end: { x: outerBuffer + 5 * xUnit, y: outerBuffer + 2 * yUnit }
+    },
+    {
+      name: 'room e',
+      start: { x: outerBuffer + 5.5 * xUnit, y: outerBuffer + 2 * yUnit },
+      end: { x: outerBuffer + 5.5 * xUnit, y: outerBuffer + 4 * yUnit }
+    },
 
-  // room nw
-  ctx.moveTo(outerBuffer + 3 * xUnit,outerBuffer);
-  ctx.lineTo(outerBuffer+ 3 * xUnit, outerBuffer + 2 * yUnit);
+    {
+      name: 'room se',
+      start: { x: outerBuffer + 5 * xUnit, y: outerBuffer + 4 * yUnit },
+      end: { x: outerBuffer + 5 * xUnit, y: outerBuffer + 6 * yUnit }
+    },
 
-  // room ne
-  ctx.moveTo(outerBuffer + 5 * xUnit,outerBuffer);
-  ctx.lineTo(outerBuffer+ 5 * xUnit, outerBuffer + 2 * yUnit);
+    {
+      name: 'room sw',
+      start: { x: outerBuffer + 3 * xUnit, y: outerBuffer + 4 * yUnit },
+      end: { x: outerBuffer + 3 * xUnit, y: outerBuffer + 6 * yUnit }
+    },
 
-  // room e
-  ctx.moveTo(outerBuffer + 5.5 * xUnit,outerBuffer + 2 * yUnit);
-  ctx.lineTo(outerBuffer + 5.5 * xUnit, outerBuffer + 4 * yUnit);
+    {
+      name: 'room w',
+      start: { x: outerBuffer, y: outerBuffer + 3 * yUnit },
+      end: { x: outerBuffer + 2.5 * xUnit, y: outerBuffer + 3 * yUnit }
+    },
 
-  // room se
-  ctx.moveTo(outerBuffer + 5 * xUnit,outerBuffer + 4 * yUnit);
-  ctx.lineTo(outerBuffer + 5 * xUnit, outerBuffer + 6 * yUnit);
+    {
+      name: 'hall top left',
+      start: { x: outerBuffer + 2.5 * xUnit, y: outerBuffer + 2 * yUnit },
+      end: { x: outerBuffer + 4 * xUnit - 1 / 2 * doorWidth, y: outerBuffer + 2 * yUnit }
+    },
 
-  // room sw
-  ctx.moveTo(outerBuffer + 3 * xUnit,outerBuffer + 4 * yUnit);
-  ctx.lineTo(outerBuffer + 3 * xUnit, outerBuffer + 6 * yUnit);
+    {
+      name: 'hall top right',
+      start: { x: outerBuffer + 4 * xUnit + 1 / 2 * doorWidth, y: outerBuffer + 2 * yUnit },
+      end: { x: outerBuffer + 5 * xUnit, y: outerBuffer + 2 * yUnit }
+    },
 
-  // room w
-  ctx.moveTo(outerBuffer, outerBuffer + 3 * yUnit);
-  ctx.lineTo(outerBuffer + 2.5 * xUnit, outerBuffer + 3 * yUnit);
+    {
+      name: 'hall right',
+      start: { x: outerBuffer + 5.5 * xUnit, y: outerBuffer + 2 * yUnit },
+      end: { x: outerBuffer + 5.5 * xUnit, y: outerBuffer + 4 * yUnit }
+    },
 
+    {
+      name: 'hall bottom right',
+      start: { x: outerBuffer + 4 * xUnit + 1 / 2 * doorWidth, y: outerBuffer + 4 * yUnit },
+      end: { x: outerBuffer + 5 * xUnit, y: outerBuffer + 4 * yUnit }
+    },
 
-  // hall top left
-  ctx.moveTo(outerBuffer + 2.5 * xUnit, outerBuffer + 2 * yUnit);
-  ctx.lineTo(outerBuffer + 4 * xUnit - 1/2 * doorWidth, outerBuffer + 2 * yUnit);
+    {
+      name: 'hall bottom left',
+      start: { x: outerBuffer + 2.5 * xUnit, y: outerBuffer + 4 * yUnit },
+      end: { x: outerBuffer + 4 * xUnit - 1 / 2 * doorWidth, y: outerBuffer + 4 * yUnit }
+    },
 
-  // hall top right
-  ctx.moveTo(outerBuffer + 4 * xUnit + 1/2 * doorWidth, outerBuffer + 2 * yUnit);
-  ctx.lineTo(outerBuffer + 5 * xUnit, outerBuffer + 2 * yUnit);    
-    
-  // hall right
-  ctx.moveTo(outerBuffer + 5.5 * xUnit, outerBuffer + 2 * yUnit);
-  ctx.lineTo(outerBuffer + 5.5 * xUnit, outerBuffer + 4 * yUnit);
-  
-  // hall bottom right
-  ctx.moveTo(outerBuffer + 4 * xUnit + 1/2 * doorWidth, outerBuffer + 4 * yUnit);
-  ctx.lineTo(outerBuffer + 5 * xUnit, outerBuffer + 4 * yUnit);
-
-  // hall bottom left
-  ctx.moveTo(outerBuffer + 2.5 * xUnit, outerBuffer + 4 * yUnit);
-  ctx.lineTo(outerBuffer + 4 * xUnit - 1/2 * doorWidth, outerBuffer + 4 * yUnit);
-  
-  // hall left
-  ctx.moveTo(outerBuffer + 2.5 * xUnit, outerBuffer + 2 * yUnit + doorHeight);
-  ctx.lineTo(outerBuffer + 2.5 * xUnit, outerBuffer + 4 * yUnit - doorHeight);
-  
-  ctx.stroke();
+    {
+      name: 'hall left',
+      start: { x: outerBuffer + 2.5 * xUnit, y: outerBuffer + 2 * yUnit + doorHeight },
+      end: { x: outerBuffer + 2.5 * xUnit, y: outerBuffer + 4 * yUnit - doorHeight }
+    }
+  );
 }
 
 function catchLetter () {
@@ -244,9 +279,9 @@ function placeLetter () {
 }
 
 function randomPosition () {
-  let x = outerBuffer + innerBuffer + Math.random() * (houseWidth - 2 * innerBuffer); 
-  let y = outerBuffer + innerBuffer + Math.random() * (houseHeight - 2 * innerBuffer); 
-  // check for wall 
+  let x = outerBuffer + innerBuffer + Math.random() * (houseWidth - 2 * innerBuffer);
+  let y = outerBuffer + innerBuffer + Math.random() * (houseHeight - 2 * innerBuffer);
+  // check for wall
   return {x,y};
 }
 
@@ -259,7 +294,7 @@ function movePlayer() {
   player.y = player.y + player.direction.dY;
 }
 
-function drawPlayer () {
+function drawPlayer() {
   let crewColor = colors[player.color];
   let crewOutline = crewColor;
   if (player.color == 1) crewOutline = 'white';
@@ -310,19 +345,19 @@ function drawPlayer () {
   } else {
     ctx.roundRect(player.x - 1, player.y - 10, 15, 10, 5); // no support in firefox !!
   }
-    ctx.stroke();
-    ctx.fill();
+  ctx.stroke();
+  ctx.fill();
 
-    ctx.strokeStyle = 'white';
-    ctx.fillStyle = 'white';
+  ctx.strokeStyle = 'white';
+  ctx.fillStyle = 'white';
   ctx.beginPath();
   if (player.facing == "left") {
-    ctx.roundRect(player.x -15, player.y - 8, 8, 3, 1); // no support in firefox !!
+    ctx.roundRect(player.x - 15, player.y - 8, 8, 3, 1); // no support in firefox !!
   } else {
     ctx.roundRect(player.x + 5, player.y - 8, 8, 3, 1); // no support in firefox !!
   }
-    ctx.stroke();
-    ctx.fill();
+  ctx.stroke();
+  ctx.fill();
 
 }
 
