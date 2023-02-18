@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d', { alpha: false });
 window.addEventListener('resize', resize);
 
 const gameOn = 1;
+const speed = 2;
 const alphabet = ['a','ä','b','c','d','e','f','g','h','i','j','k','l','m','n','o','ö','p','q','r','s','t','u','ü','v','w','x','y','z'];
 let currentLetter = {
   letter: 0,
@@ -43,7 +44,7 @@ let player = {
   direction: { dX: 0, dY: 0 },
   facing: "right",
   color: 0,
-  ghost: true
+  ghost: false
 };
 
 let lastRender = 0;
@@ -69,26 +70,26 @@ function controls(e) {
     case 'W':
       case 'ArrowUp':
         case 'w':
-          player.direction.dY = -1;
+          player.direction.dY = -speed;
           break;
 
           case 'A':
             case 'ArrowLeft':
               case 'a':
-                player.direction.dX = -1;
+                player.direction.dX = -speed;
                 player.facing = "left";
                 break;
 
                 case 'S':
                   case 'ArrowDown':
                     case 's':
-                      player.direction.dY = 1;
+                      player.direction.dY = speed;
                       break;
 
                       case 'D':
                         case 'ArrowRight':
                           case 'd':
-                            player.direction.dX = 1;
+                            player.direction.dX = speed;
                             player.facing = "right";
                             break;
 
