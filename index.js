@@ -42,7 +42,8 @@ let player = {
   y: Math.floor(window.innerHeight / 2),
   direction: { dX: 0, dY: 0 },
   facing: "right",
-  color: 0
+  color: 0,
+  ghost: true
 };
 
 let lastRender = 0;
@@ -140,6 +141,7 @@ function controls(e) {
 
 }
 defineWalls();
+
 placeLetter();
 gameLoop();
 
@@ -296,6 +298,7 @@ function movePlayer() {
 }
 
 function drawPlayer() {
+  if (player.ghost == true) ctx.globalAlpha = 0.4;
   let crewColor = colors[player.color];
   let crewOutline = crewColor;
   if (player.color == 1) crewOutline = 'white';
@@ -359,7 +362,7 @@ function drawPlayer() {
   }
   ctx.stroke();
   ctx.fill();
-
+  ctx.globalAlpha = 1;
 }
 
 function endGame () {
