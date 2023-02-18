@@ -296,6 +296,12 @@ function drawLetter () {
 function movePlayer() {
   player.x = player.x + player.direction.dX;
   player.y = player.y + player.direction.dY;
+
+  // boundry check
+  if (player.x > houseWidth + outerBuffer - innerBuffer) player.x = houseWidth + outerBuffer - innerBuffer;
+  if (player.y > houseHeight + outerBuffer - innerBuffer) player.y = houseHeight + outerBuffer - innerBuffer;
+  if (player.x < outerBuffer + innerBuffer) player.x = outerBuffer + innerBuffer;
+  if (player.y < outerBuffer + innerBuffer) player.y = outerBuffer + innerBuffer;
 }
 
 function drawPlayer() {
