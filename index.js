@@ -13,7 +13,6 @@ let currentLetter = {
 
 const colors = [
   'yellow',
-  'black',
   'purple',
   'blue',
   'green',
@@ -68,79 +67,87 @@ function controls(e) {
   switch (e.key) {
 
     case 'W':
-      case 'ArrowUp':
-        case 'w':
-          player.direction.dY = -speed;
-          break;
+    case 'ArrowUp':
+    case 'w':
+      player.direction.dY = -speed;
+      break;
 
-          case 'A':
-            case 'ArrowLeft':
-              case 'a':
-                player.direction.dX = -speed;
-                player.facing = "left";
-                break;
+    case 'A':
+    case 'ArrowLeft':
+    case 'a':
+      player.direction.dX = -speed;
+      player.facing = "left";
+      break;
 
-                case 'S':
-                  case 'ArrowDown':
-                    case 's':
-                      player.direction.dY = speed;
-                      break;
+    case 'S':
+    case 'ArrowDown':
+    case 's':
+      player.direction.dY = speed;
+      break;
 
-                      case 'D':
-                        case 'ArrowRight':
-                          case 'd':
-                            player.direction.dX = speed;
-                            player.facing = "right";
-                            break;
+    case 'D':
+    case 'ArrowRight':
+    case 'd':
+      player.direction.dX = speed;
+      player.facing = "right";
+      break;
 
-                            case 'Escape':
-                              if (!e.repeat) exitGame();
-                              break;
+    case 'Escape':
+      if (!e.repeat) exitGame();
+      break;
 
-                              case 'c':
-                                case 'C':
-                                  changeColor();
-                                  break;
+    case 'c':
+    case 'C':
+      changeColor();
+      break;
 
-                                  default: break;
-                                }
-                              }
+    case ' ':
+      ghostMode();
+    default: break;
+  }
+}
 
-                              function keyupControls(e) {
+function keyupControls(e) {
 
-                                switch (e.key) {
-                                  case 'W':
-                                    case 'ArrowUp':
-                                      case 'w':
-                                        case 'S':
-                                          case 'ArrowDown':
-                                            case 's': player.direction.dY = 0;
-                                            break;
+  switch (e.key) {
+    case 'w':
+    case 'W':
+    case 'ArrowUp':
+    case 'ArrowDown':
+    case 'S':
+    case 's': player.direction.dY = 0;
+    break;
 
-                                            case 'A':
-                                              case 'ArrowLeft':
-                                                case 'D':
-                                                  case 'ArrowRight':
-                                                    case 'd': player.direction.dX = 0;
-                                                    break;
+    case 'A':
+    case 'a':
+    case 'ArrowLeft':
+    case 'ArrowRight':
+    case 'D':
+    case 'd': player.direction.dX = 0;
+    break;
 
-                                                    default:
-                                                      break;
-                                                    }
-                                                  }
+    default:
+      break;
+    }
+}
 
-                                                  function setControlListeners() {
-                                                    document.addEventListener('keydown', controls);
-                                                    document.addEventListener('keyup', keyupControls);
-                                                  }
+function setControlListeners() {
+  document.addEventListener('keydown', controls);
+  document.addEventListener('keyup', keyupControls);
+}
 
-                                                  function changeColor() {
+function changeColor() {
   console.log('color change: ', player.color);
 
   player.color = player.color + 1
   if (player.color > colors.length) player.color = 0;
-
 }
+
+function ghostMode() {
+  player.ghost = true;
+  setTimeout(() => { player.ghost = false }, 2000);
+};
+
 defineWalls();
 
 placeLetter();
@@ -294,21 +301,63 @@ function drawLetter () {
 }
 
 function movePlayer() {
-  player.x = player.x + player.direction.dX;
-  player.y = player.y + player.direction.dY;
+
+  if (player.ghost == true || isNotWall({
+      x: player.x + player.direction.dX,
+      y: player.y
+    })) {
+      player.x = player.x + player.direction.dX;
+    }
+
+    if (player.ghost == true || isNotWall({
+      x: player.x,
+      y: player.y + player.direction.dY
+    })) {
+      player.y = player.y + player.direction.dY;
+    }
 
   // boundry check
   if (player.x > houseWidth + outerBuffer - innerBuffer) player.x = houseWidth + outerBuffer - innerBuffer;
   if (player.y > houseHeight + outerBuffer - innerBuffer) player.y = houseHeight + outerBuffer - innerBuffer;
   if (player.x < outerBuffer + innerBuffer) player.x = outerBuffer + innerBuffer;
   if (player.y < outerBuffer + innerBuffer) player.y = outerBuffer + innerBuffer;
+
+}
+
+function isNotWall (point) {
+  let x = point.x,
+    y = point.y;
+
+  for (let i = 0; i < walls.length; i++) {
+
+     let x1 = walls[i].start.x,
+      x2 = walls[i].end.x,
+      y1 = walls[i].start.y,
+      y2 = walls[i].end.y;
+
+    if (
+      x1 == x2 && y1 != y2 &&
+      x > x1 - innerBuffer && x < x1 + innerBuffer &&
+      y > Math.min(y1, y2) - innerBuffer && y < Math.max(y1, y2) + innerBuffer) {
+      // wallOrientation = 'vertical' ;
+      return false;
+    }
+
+    if (
+      x1 != x2 && y1 == y2 &&
+      y > y1 - innerBuffer && y < y1 + innerBuffer &&
+      x > Math.min(x1, x2) - innerBuffer && x < Math.max(x1, x2) + innerBuffer) {
+      // wallOrientation = 'horizontal';
+      return false;
+    }
+  }
+  return true;
 }
 
 function drawPlayer() {
   if (player.ghost == true) ctx.globalAlpha = 0.4;
   let crewColor = colors[player.color];
   let crewOutline = crewColor;
-  if (player.color == 1) crewOutline = 'white';
 
   // body
   ctx.lineWidth = 5;
