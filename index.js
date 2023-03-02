@@ -2,6 +2,18 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d', { alpha: false });
 window.addEventListener('resize', resize);
 
+const outerBuffer = 30;
+const innerBuffer = 30;
+let houseWidth;
+let houseHeight;
+const doorWidth = 100;
+const doorHeight = 100;
+let xUnit;
+let yUnit;
+const walls = [];
+resize();
+defineWalls();
+
 const gameOn = 1;
 const speed = 2;
 const alphabet = ['a','ä','b','c','d','e','f','g','h','i','j','k','l','m','n','o','ö','p','q','r','s','t','u','ü','v','w','x','y','z'];
@@ -19,38 +31,37 @@ const colors = [
   'red',
 ];
 
-const outerBuffer = 30;
-const innerBuffer = 30;
-let houseWidth;
-let houseHeight;
-const doorWidth = 100;
-const doorHeight = 100;
-let xUnit;
-let yUnit;
-const walls = [];
-
-function speak(message) {
-  let msg = new SpeechSynthesisUtterance();
-  msg.text = message;
-  window.speechSynthesis.speak(msg);
-};
-
-speak('Hello crewmate... How are you Kieran?');
-
 let player = {
-  x: Math.floor(window.innerWidth / 2),
-  y: Math.floor(window.innerHeight / 2),
+  x: 0,
+  y: 0,
   direction: { dX: 0, dY: 0 },
   facing: "right",
   color: 0,
   ghost: false
 };
 
+({ x: player.x, y: player.y } = randomPosition());
+
 let lastRender = 0;
 let start, previousTimeStamp;
 
-resize();
-setControlListeners();
+initGame();
+
+function initGame() {
+  setControlListeners();
+  // speak('Hello crew mate');
+  placeLetter();
+  gameLoop();
+};
+
+function gameLoop() {
+  clearCanvas();
+  drawWalls();
+  drawLetter();
+  movePlayer();
+  drawPlayer();
+  // requestAnimationFrame(gameLoop);
+}
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -59,8 +70,6 @@ function resize() {
   houseHeight = canvas.height - (2 * outerBuffer);
   xUnit = houseWidth / 8;
   yUnit = houseHeight / 6;
-  player.x = Math.floor(window.innerWidth / 2);
-  player.y = Math.floor(window.innerHeight / 2);
 }
 
 function controls(e) {
@@ -136,9 +145,13 @@ function setControlListeners() {
   document.addEventListener('keyup', keyupControls);
 }
 
-function changeColor() {
-  console.log('color change: ', player.color);
+function speak(message) {
+  let msg = new SpeechSynthesisUtterance();
+  msg.text = message;
+  window.speechSynthesis.speak(msg);
+};
 
+function changeColor() {
   player.color = player.color + 1
   if (player.color > colors.length) player.color = 0;
 }
@@ -153,37 +166,22 @@ function ghostMode() {
   }, 2000);
 };
 
-defineWalls();
-
-placeLetter();
-gameLoop();
-
-function gameLoop() {
-  clearCanvas();
-  drawWalls();
-  drawLetter();
-  movePlayer();
-  drawPlayer();
-
-  requestAnimationFrame(gameLoop);
-}
-
 function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // sets transparent black
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawWalls() {
-
   ctx.lineWidth = 2;
   ctx.strokeStyle = 'white';
   ctx.fillStyle = 'white';
 
   walls.forEach(wall => {
+    console.log(wall.start.x);
+
     ctx.moveTo(wall.start.x, wall.start.y);
     ctx.lineTo(wall.end.x, wall.end.y);
     ctx.stroke();
   });
-
 }
 
 function defineWalls() {
@@ -289,19 +287,23 @@ function catchLetter () {
 }
 
 function placeLetter () {
-  const newPosition = randomPosition();
-  currentLetter.x = newPosition.x;
-  currentLetter.y = newPosition.y;
+  ({x:currentLetter.x, y:currentLetter.y} = randomPosition());
 }
 
 function randomPosition () {
   let x = outerBuffer + innerBuffer + Math.random() * (houseWidth - 2 * innerBuffer);
   let y = outerBuffer + innerBuffer + Math.random() * (houseHeight - 2 * innerBuffer);
   // check for wall
-  return {x,y};
+  if (isNotWall({ x, y })) {
+    return { x, y };
+  } else {
+    return randomPosition();
+  }
 }
 
-function drawLetter () {
+function drawLetter() {
+  ctx.font = '14px sans-serif';
+  ctx.letterSpacing = '2px';
   ctx.fillText( alphabet[currentLetter.letter].toUpperCase() + alphabet[currentLetter.letter], currentLetter.x, currentLetter.y);
 }
 
@@ -428,12 +430,11 @@ function drawPlayer() {
 
 function endGame () {
   gameOn = 0;
-  alert("Congratulations!")
+  alert("Congratulations! You won!")
 }
 
 function die() {
   speak('You died!');
   alert('You died');
   ({x:player.x, y:player.y} = randomPosition());
-
 }
