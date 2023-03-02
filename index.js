@@ -35,7 +35,7 @@ function speak(message) {
   window.speechSynthesis.speak(msg);
 };
 
-// speak('Hello crewmate... How are you Kieran?');
+speak('Hello crewmate... How are you Kieran?');
 
 let player = {
   x: Math.floor(window.innerWidth / 2),
@@ -144,8 +144,13 @@ function changeColor() {
 }
 
 function ghostMode() {
+  speak('Imposter alert!');
   player.ghost = true;
-  setTimeout(() => { player.ghost = false }, 2000);
+  setTimeout(() => {
+    if (!isNotWall({x:player.x,y:player.y})){die()}
+    player.ghost = false;
+
+  }, 2000);
 };
 
 defineWalls();
@@ -424,4 +429,11 @@ function drawPlayer() {
 function endGame () {
   gameOn = 0;
   alert("Congratulations!")
+}
+
+function die() {
+  speak('You died!');
+  alert('You died');
+  ({x:player.x, y:player.y} = randomPosition());
+
 }
